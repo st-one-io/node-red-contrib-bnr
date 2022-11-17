@@ -1,0 +1,78 @@
+{
+    "bnr":{
+        "endpoint": {
+            "status": {
+                "online": "online",
+                "offline":"offline",
+                "connecting": "connecting",
+                "unknown": "unknown"
+            },
+            "label": {
+                "variables": {
+                    "list": "Variable list",
+                    "add": "Add",
+                    "clean": "Remove all",
+                    "del": "Remove",
+                    "name": "Var. Name",
+                    "addr": "Var. Address",
+                    "export": "Export",
+                    "import": "Import"
+                },
+                "address": "Address",
+                "port": "Port",
+                "cycletime": "Cycle Time",
+                "search": "Search",
+                "sa": "Station Addr.",
+                "timeout": "Time Out"
+            },
+            "error": {
+                "invalidtimeinterval": "Invalid time interval for cycle time of \"__interval__\""
+            },
+            "info": {
+                "cycletimetooshort": "Cycle time too short, enforcing minimum of __min__ ms",
+                "novars": "No variables configured, skipping cyclic reading"
+            },
+            "validation": {
+                "ERR_PARSE_EMPTY": "Address cannot be empty",
+                "ERR_PARSE_UNKNOWN_FORMAT": "Unknown address format, check node's help section",
+                "ERR_PARSE_FILENUM": "File number must not be greater than 254",
+                "ERR_PARSE_FILETYPE": "Invalid file type",
+                "ERR_PARSE_ELENUM": "Element number must not be greater than 254"
+            }
+        },
+        "in": {
+            "label": {
+                "name": "bnr in",
+                "endpoint": "PLC",
+                "mode": "Mode",
+                "variable": "Variable",
+                "diff": "Emit only when value changes (diff)",
+                "variable-select": "Select a variable",
+                "variable-novar": "No variables"
+            },
+            "mode": {
+                "single": "Single variable",
+                "all-split": "All variables, one per message",
+                "all": "All variables"
+            }
+        },
+        "control": {
+            "label": {
+                "name": "bnr control",
+                "function": "Function",
+                "endpoint": "PLC"
+            },
+            "function": {
+                "cycletime": "Cycle time",
+                "trigger": "Trigger read"
+            }
+        },
+        "label": {
+            "name": "Name"
+        },
+        "error": {
+            "missingconfig": "Missing configuration",
+            "invalidcontrolfunction": "Invalid control function \"__function__\""
+        }
+    }
+}

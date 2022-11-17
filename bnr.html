@@ -1,0 +1,662 @@
+<!-- 
+  Copyright: (c) 2021, ST-One
+  GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt) 
+-->
+
+<script type="text/html" data-template-name="bnr endpoint">
+
+	<div class="form-row">
+		<label for="node-config-input-address"><i class="fa fa-globe"></i> <span data-i18n="bnr.endpoint.label.address"></span></label>
+		<input class="input-append-left" type="text" id="node-config-input-address" data-i18n="[placeholder]bnr.endpoint.label.address" style="width: 40%;">
+		<label for="node-config-input-port" style="margin-left: 10px; width: 35px; "> <span data-i18n="bnr.endpoint.label.port"></span></label>
+		<input type="text" id="node-config-input-port" data-i18n="[placeholder]bnr.endpoint.label.port" style="width: 70px">
+	</div>
+	<div class="form-row">
+		<label for="node-config-input-sa"><i class="fa fa-sitemap"></i> <span data-i18n="bnr.endpoint.label.sa"></span></label>
+		<input type="text" id="node-config-input-sa" data-i18n="[placeholder]bnr.endpoint.label.sa" style="width: 20%; margin-right: 10px;">
+	</div>
+
+	<div class="form-row">
+		<label for="node-config-input-timeout"><i class="fa fa-refresh"></i> <span data-i18n="bnr.endpoint.label.timeout"></span></label>
+        <input type="text" id="node-config-input-timeout" data-i18n="[placeholder]bnr.endpoint.label.timeout" style="width: 80px;"> <span>ms</span>
+	</div>
+
+	<div class="form-row">
+        <label for="node-config-input-cycletime"><i class="fa fa-refresh"></i> <span data-i18n="bnr.endpoint.label.cycletime"></span></label>
+        <input type="text" id="node-config-input-cycletime" data-i18n="[placeholder]bnr.endpoint.label.cycletime" style="width: 80px;"> <span>ms</span>
+    </div>
+
+    <div class="form-row" style="margin-bottom:0;">
+        <label><i class="fa fa-list"></i> <span data-i18n="bnr.endpoint.label.variables.list"></span></label>
+    </div>
+    <div class="form-row node-input-variables-container-row" style="margin-bottom: 0px;">
+        <div id="node-config-input-variables-container-div" style="box-sizing: border-box; border-radius: 5px; height: 300px; padding: 5px; border: 1px solid #ccc; overflow-y:scroll;">
+            <ol id="node-config-input-variables-container" style=" list-style-type:none; margin: 0;"></ol>
+        </div>
+    </div>
+    <div class="form-row">
+        <a href="#" class="editor-button editor-button-small" id="node-config-bnr-endpoint-var-export" style="margin: 4px; float: right"><i class="fa fa-download"></i> <span data-i18n="bnr.endpoint.label.variables.export"></span></a>
+        <input type="file" id="node-config-bnr-endpoint-var-import" style="display: none"/>
+        <a href="#" class="editor-button editor-button-small" id="node-config-bnr-endpoint-var-import-btn" style="margin: 4px; float: right"><i class="fa fa-upload"></i> <span data-i18n="bnr.endpoint.label.variables.import"></span></a>
+        <a href="#" class="editor-button editor-button-small" id="node-config-input-add-variable" style="margin: 4px;"><i class="fa fa-plus"></i> <span data-i18n="bnr.endpoint.label.variables.add"></span></a>
+        <a href="#" class="editor-button editor-button-small" id="node-config-bnr-endpoint-var-clean" style="margin: 4px;"><i class="fa fa-trash-o"></i> <span data-i18n="bnr.endpoint.label.variables.clean"></span></a>
+    </div>
+
+    <br>
+
+    <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> <span data-i18n="bnr.label.name"></span></label>
+        <input type="text" id="node-config-input-name" data-i18n="[placeholder]bnr.label.name">
+    </div>
+    
+</script>
+
+<script type="text/html" data-help-name="bnr endpoint">
+	<p>Configures the connection to a PLC</p>
+	<p>This node was created by <a href="https://st-one.io" target="_blank">ST-One</a></p>
+
+	<h3>Details</h3>
+	<p>
+		The <strong>Cycle time</strong> configuration specifies the time interval in which
+		all variables will be read from the PLC. A value of <code>0</code> disables
+		automatic reading.
+	</p>
+
+	<p>
+		The <strong>Baud Rate</strong> and <strong>Error Detection</strong> must both be set according 
+		to the value configured on the port used for communicating with the PLC.
+	</p>
+
+	<h3>Variable addressing</h3>
+
+	<ul>
+		<li>FILE TYPE</li>
+		<ul>
+			<li>O: Output</li>
+			<li>I: Input</li>
+			<li>S: Status</li>
+			<li>B: Binary</li>
+			<li>N: Integer</li>
+			<li>T: Timer</li>
+			<li>C: Counter</li>
+			<li>R: Control</li>
+			<li>F: Float</li>
+		</ul>
+		<li>FILE NUMBER</li>
+		<ul>
+			<li>0,1,2... (Ex. B3 (3 is the file number)).</li>
+		</ul>
+		<li>ELEMENT NUMBER(:)</li>
+		<ul>
+			<li>0,1,2... (Ex. S2:4 (4 is the element number)).</li>
+		</ul>
+		<li>SUB-ELEMENT NUMBER(.)</li>
+		<ul>
+			<li>0,1,2... (Ex. I1:0.5 (5 is the sub-element number)).</li>
+		</ul>
+		<li>BIT OFFSET(/)</li>
+		<ul>
+			<li>0,1,2... (Ex. O0:0.0/14 (14 is the bit offset)).</li>
+		</ul>
+	</ul>
+
+	<h4>Examples</h4>
+	<ul>
+		<li>O0:0.1 - Reads a sub-element (16 bits/word)</li>
+		<li>I1:0.2/3 - Reads a single bit</li>
+		<li>N7:0 - Reads an INTEGER element (16 bits/word)</li>
+		<li>F8:0 - Reads a FLOAT element (32 bits/floating point number)</li>
+		<li>N7:1/15 - Reads a single bit</li>
+		<li>T4:0 - Reads a TIMER element (48 bits/parsed timer object)</li>
+	</ul>
+
+</script>
+
+<script type="text/javascript">
+	var saveAs = saveAs || function (e) { "use strict"; if (typeof e === "undefined" || typeof navigator !== "undefined" && /MSIE [1-9]\./.test(navigator.userAgent)) { return } var t = e.document, n = function () { return e.URL || e.webkitURL || e }, r = t.createElementNS("http://www.w3.org/1999/xhtml", "a"), o = "download" in r, a = function (e) { var t = new MouseEvent("click"); e.dispatchEvent(t) }, i = /constructor/i.test(e.HTMLElement) || e.safari, f = /CriOS\/[\d]+/.test(navigator.userAgent), u = function (t) { (e.setImmediate || e.setTimeout)(function () { throw t }, 0) }, s = "application/octet-stream", d = 1e3 * 40, c = function (e) { var t = function () { if (typeof e === "string") { n().revokeObjectURL(e) } else { e.remove() } }; setTimeout(t, d) }, l = function (e, t, n) { t = [].concat(t); var r = t.length; while (r--) { var o = e["on" + t[r]]; if (typeof o === "function") { try { o.call(e, n || e) } catch (a) { u(a) } } } }, p = function (e) { if (/^\s*(?:text\/\S*|application\/xml|\S*\/\S*\+xml)\s*;.*charset\s*=\s*utf-8/i.test(e.type)) { return new Blob([String.fromCharCode(65279), e], { type: e.type }) } return e }, v = function (t, u, d) { if (!d) { t = p(t) } var v = this, w = t.type, m = w === s, y, h = function () { l(v, "writestart progress write writeend".split(" ")) }, S = function () { if ((f || m && i) && e.FileReader) { var r = new FileReader; r.onloadend = function () { var t = f ? r.result : r.result.replace(/^data:[^;]*;/, "data:attachment/file;"); var n = e.open(t, "_blank"); if (!n) e.location.href = t; t = undefined; v.readyState = v.DONE; h() }; r.readAsDataURL(t); v.readyState = v.INIT; return } if (!y) { y = n().createObjectURL(t) } if (m) { e.location.href = y } else { var o = e.open(y, "_blank"); if (!o) { e.location.href = y } } v.readyState = v.DONE; h(); c(y) }; v.readyState = v.INIT; if (o) { y = n().createObjectURL(t); setTimeout(function () { r.href = y; r.download = u; a(r); h(); c(y); v.readyState = v.DONE }); return } S() }, w = v.prototype, m = function (e, t, n) { return new v(e, t || e.name || "download", n) }; if (typeof navigator !== "undefined" && navigator.msSaveOrOpenBlob) { return function (e, t, n) { t = t || e.name || "download"; if (!n) { e = p(e) } return navigator.msSaveOrOpenBlob(e, t) } } w.abort = function () { }; w.readyState = w.INIT = 0; w.WRITING = 1; w.DONE = 2; w.error = w.onwritestart = w.onprogress = w.onwrite = w.onabort = w.onerror = w.onwriteend = null; return m }(typeof self !== "undefined" && self || typeof window !== "undefined" && window || this.content); if (typeof module !== "undefined" && module.exports) { module.exports.saveAs = saveAs } else if (typeof define !== "undefined" && define !== null && define.amd !== null) { define("FileSaver.js", function () { return saveAs }) }
+</script>
+
+<script type="text/javascript">
+    
+	function validateSerialport(serialport) {
+		if (!serialport || serialport === "") return false;
+		return true;
+	}
+	
+	function validateBNRAddress(address) {
+        if (!address) return 'ERR_PARSE_EMPTY';
+		
+		let stringValidate = /^([\w$]*):(?:([\w$]+)(\[\d+\])?\.?)+(\w+)(\[\d+\])?$/g
+
+        let match = address.match(stringValidate);
+		if (!match) return 'ERR_PARSE_UNKNOWN_FORMAT';
+        
+        return null;
+    }
+    
+    function validateAddressList(list) {
+		for (var i = 0; i < list.length; i++){
+			var elm = list[i];
+			if (!elm.name) return false;
+			if (validateBNRAddress(elm.addr)) return false;
+		}
+		return true;
+	}
+    
+    RED.nodes.registerType('bnr endpoint', {
+        category: 'config',
+        color: '#FFFB02',
+        defaults: {
+			address: {
+				value: "",
+				validate: RED.validators.regex(/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/)
+			},
+			port: {
+				value: "11159",
+				validate: RED.validators.number()
+			},
+            cycletime: {
+				value: 1000
+			},
+			timeout: {
+				value: 1500
+			},
+			sa: {
+				value: 99,
+				validate: RED.validators.number()
+			},
+            vartable: {
+				value: [{
+					name: "",
+					addr: ""
+				}],
+				validate: validateAddressList
+			}
+        },
+        label: function () {
+			var self = this;
+
+			if (this.name) return this.name;
+
+			return "bnr endpoint";
+		},
+        oneditprepare: function () {
+            var self = this;
+			var tt = this._.bind(this);
+
+            var labelName = this._("bnr.endpoint.label.variables.name");
+			var labelAddr = this._("bnr.endpoint.label.variables.addr");
+			var labelDel = this._("bnr.endpoint.label.variables.del");
+
+			var fieldSerialport = $('#node-config-input-serialport');
+			var lookupSerialportBtn = $('#node-config-lookup-serialport');
+            
+            $("#node-config-input-cycletime").spinner({
+                min: 0
+            });
+
+			$("#node-config-input-timeout").spinner({
+                min: 1000
+            });
+
+            function generateVariable(variable) {
+                var curTooltip;
+				var previousValue = variable.addr;
+				var container = $('<li/>', {
+					style: "background: #fff; margin:0; padding:8px 0px; border-bottom: 1px solid #ccc;"
+				});
+				var row1 = $('<div/>').appendTo(container);
+
+				var variableAddr = $('<input/>', {
+					style: "width: 110px; margin-right: 10px;",
+					class: "node-config-input-variable-addr",
+					type: "text",
+					placeholder: labelAddr
+				}).appendTo(row1);
+
+				var variableName = $('<input/>', {
+					style: "width: 250px",
+					class: "node-config-input-variable-name",
+					type: "text",
+					placeholder: labelName
+				}).appendTo(row1);
+
+				var finalspan = $('<span/>', {
+					style: "float: right; margin-right: 10px;"
+				}).appendTo(row1);
+				var deleteButton = $('<a/>', {
+					href: "#",
+					class: "editor-button editor-button-small",
+					style: "margin-top: 7px; margin-left: 5px;",
+					title: labelDel
+				}).appendTo(finalspan);
+
+				$('<i/>', {
+					class: "fa fa-remove"
+				}).appendTo(deleteButton);
+
+				deleteButton.click(function () {
+					container.css({
+						"background": "#fee"
+					});
+					container.fadeOut(150, function () {
+						$(this).remove();
+					});
+					if (curTooltip) curTooltip.close();
+				});
+
+                variableAddr.change(function () {
+					//validate address
+					var curVal = variableAddr.val();
+					var valError = validateBNRAddress(curVal);
+					if (valError) {
+						variableAddr.addClass('input-error')
+						var errorText = tt("bnr.endpoint.validation." + valError);
+						if (curTooltip) {
+							curTooltip.setContent(errorText);
+							curTooltip.open();
+						} else if (RED.popover && RED.popover.tooltip){
+							curTooltip = RED.popover.tooltip(variableAddr, errorText);
+							curTooltip.open();
+						}
+					} else {
+						variableAddr.removeClass('input-error');
+						if(curTooltip) {
+							curTooltip.close();
+							curTooltip.setContent('');
+							//hack to remove the popup, as Node-RED don't offer
+							// and "unbind" function. May break in the future
+							variableAddr.off('mouseenter mouseleave disabled');
+							curTooltip = null;
+						}
+					}
+
+					//update name if matching old one
+					if (previousValue && variableName.val() == previousValue) {
+						variableName.val(curVal);
+					}
+					previousValue = curVal;
+				});
+
+				//populate data
+				variableAddr.val(variable.addr);
+				variableName.val(variable.name);
+				variableAddr.change();
+
+				$("#node-config-input-variables-container").append(container);
+			}
+
+			function cleanVarTable() {
+				$("#node-config-input-variables-container").children().remove();
+			}
+
+			function populateVarTable() {
+				if (self.vartable) {
+					if (typeof self.vartable == 'string') {
+						self.vartable = JSON.parse(self.vartable);
+					}
+					for (var i = 0; i < self.vartable.length; i++) {
+						generateVariable(self.vartable[i]);
+					}
+				}
+			}
+
+			$("#node-config-input-add-variable").click(function () {
+                generateVariable({
+					name: "",
+					addr: ""
+				});
+			});
+
+            $("#node-config-bnr-endpoint-var-clean").click(cleanVarTable);
+
+            populateVarTable();
+
+            // export
+			function exportCSV() {
+				var vars = $("#node-config-input-variables-container").children();
+				var lines = [];
+
+				vars.each(function (i) {
+					var elm = $(this);
+					lines.push([
+						elm.find(".node-config-input-variable-addr").val(), //addr
+						elm.find(".node-config-input-variable-name").val() //name
+					].join(';'));
+				});
+
+				saveAs(new Blob([lines.join('\r\n')]), 'bnrEndpoint' + (self.name ? '_' + self.name : '') + '.csv');
+			}
+            $('#node-config-bnr-endpoint-var-export').click(exportCSV);
+
+			// import
+			function importCSV(e) {
+				var file = e.target.files[0];
+				if (!file) {
+					return;
+				}
+				var reader = new FileReader();
+				reader.onload = function (e) {
+					var res = [], i, fields;
+					var contents = e.target.result || '';
+					var lines = contents.split(/[\r\n]+/);
+
+					if (!lines.length) {
+						alert('file is empty!');
+						return;
+					}
+
+					for (i = 0; i < lines.length; i++) {
+
+						lines[i] = lines[i].trim();
+						if (lines[i] == '') continue;
+
+						fields = lines[i].split(/[\t;]/);
+
+						if (fields.length < 2) {
+							alert('line must have at least two parameters, address and name');
+							return;
+						}
+						res.push({
+							addr: fields[0],
+							name: fields[1]
+						});
+					}
+
+					if (res.length) {
+						cleanVarTable();
+						self.vartable = res;
+						populateVarTable();
+					}
+				};
+				reader.readAsText(file);
+			}
+			$('#node-config-fd1-endpoint-var-import').on('change', importCSV);
+			$('#node-config-fd1-endpoint-var-import-btn').click(function () {
+				$('#node-config-fd1-endpoint-var-import').click();
+			})
+
+
+        },
+        oneditsave: function () {
+			var node = this;
+			var vars = $("#node-config-input-variables-container").children();
+			node.vartable = [];
+
+			vars.each(function (i) {
+				var elm = $(this);
+				var addr = elm.find(".node-config-input-variable-addr").val();
+				var name = elm.find(".node-config-input-variable-name").val();
+				var v = {
+					addr: addr,
+					name: name || addr
+				}
+				node.vartable.push(v);
+			});
+		}
+    });
+</script>
+
+<!-- ######################################################################################## -->
+
+<script type="text/html" data-template-name="bnr in">
+
+    <div class="form-row">
+        <label for="node-input-endpoint">
+            <i class="fa fa-cog"></i>
+            <span data-i18n="bnr.in.label.endpoint"></span>
+        </label>
+        <input type="text" id="node-input-endpoint" data-i18n="[placeholder]bnr.in.label.endpoint">
+    </div>
+
+    <div class="form-row">
+		<label for="node-input-mode"><i class="fa fa-sliders"></i> <span data-i18n="bnr.in.label.mode"></span></label>
+		<select type="text" id="node-input-mode">
+			<option value="single" data-i18n="bnr.in.mode.single"></option>
+			<option value="all-split" data-i18n="bnr.in.mode.all-split"></option>
+			<option value="all" data-i18n="bnr.in.mode.all"></option>
+		</select>
+	</div>
+
+	<div class="form-row bnr-input-var-row">
+		<label for="node-input-variable"><i class="fa fa-random"></i> <span data-i18n="bnr.in.label.variable"></span></label>
+		<select type="text" id="node-input-variable">
+		</select>
+    <span id="bnr-custom-var-addr" style="margin-left:5px"></span>
+	</div>
+
+	<div class="form-row">
+		<label>&nbsp;</label>
+		<input type="checkbox" id="node-input-diff" style="display: inline-block; width: auto; vertical-align: top;">
+		<label for="node-input-diff" style="width:70%;"><span data-i18n="bnr.in.label.diff"></span></label>
+	</div> 
+
+    <div class="form-row">
+        <label for="node-input-name">
+            <i class="fa fa-tag"></i>
+            <span data-i18n="bnr.label.name"></span>
+        </label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]bnr.label.name">
+    </div> 
+
+</script>
+
+<script type="text/html" data-help-name="bnr in">
+
+	<p>Reads data from an Allen-Bradley PLC</p>
+	<p>This node was created by <a href="https://st-one.io" target="_blank">ST-One</a></p>
+
+	<h3>Outputs</h3>
+	<dl class="message-properties">
+		<dt>payload<span class="property-type">any</span></dt>
+		<dd>
+			The value(s) as read from the PLC. The format and type of the payload
+			depends on the configured "Mode"
+		</dd>
+	</dl>
+
+	<h3>Details</h3>
+	<p>
+		All data is read cyclically from the PLC as configured in the <i>bnr endpoint</i>, 
+		but there are three modes of making it available in a flow:
+	</p>
+	<ul>
+		<li>
+			<b>Single variable:</b> A single variable can be selected from the configured 
+			variables, and a message is sent every cycle, or only when it changes if 
+			<i>diff</i> is checked. <code>msg.payload</code> contains the variable's value
+			and <code>msg.topic</code> has the variable's name.
+		</li>
+		<li>
+			<b>All variables, one per message:</b> Like the <i>Single variable</i> mode, 
+			but for all variables configured. If <i>diff</i> is checked, a message is sent
+			everytime any variable changes. If <i>diff</i> is unchecked, one message is sent 
+			for every variable, in every cycle. Care must be taken about the number of 
+			messages per second in this mode.
+		</li>
+		<li>
+			<b>All variables:</b> In this mode, <code>msg.payload</code> contains an object 
+			with all configured variables and their values. If <i>diff</i> is checked, a 
+			message is sent if at least one of the variables changes its value.
+		</li>
+	</ul>
+</script>
+
+<script type="text/javascript">
+    (function () {
+
+        RED.nodes.registerType('bnr in', {
+            category: 'plc',
+            color: '#FFFB02',
+            defaults: {
+                endpoint: {
+                    value: "",
+                    type: "bnr endpoint"
+                },
+                mode: {
+				    value: "single"
+                },
+                variable: {
+                    value: ""
+                },
+                diff: {
+                    value: true
+                },
+                name: {
+                    value: ""
+                }
+            },
+            inputs: 0,
+            outputs: 1,
+            icon: "serial.png",
+            paletteLabel: "bnr in",
+            label: function () {
+			    if (this.name) return this.name;
+                return this._("bnr.in.label.name");
+            },
+            labelStyle: function () {
+                return this.name ? "node_label_italic" : "";
+            },
+            oneditprepare: function () {
+                var self = this;
+
+                var varList = $('#node-input-variable');
+                var varAddr = $('#bnr-custom-var-addr');
+                var modeList = $('#node-input-mode');
+                var endpointList = $("#node-input-endpoint");
+                var vars = [];
+
+                function updateVarList(endpointId) {
+                    $('#node-input-variable option').remove();
+
+                    var endpointNode = RED.nodes.node(endpointId);
+                    if (!endpointNode) return;
+                    vars = endpointNode.vartable || [];
+                    if (typeof vars === 'string') vars = JSON.parse(vars);
+
+                    varList.append($('<option/>', {
+                        disabled: "disabled",
+                        selected: "selected",
+                        style: "display:none;",
+                        text: vars.length ? self._("bnr.in.label.variable-select") : self._("bnr.in.label.variable-novar")
+                    }));
+
+                    $.each(vars, function (i, val) {
+                        varList.append($('<option/>', {
+                            value: val.name || val.addr,
+                            text: val.name || val.addr
+                        }));
+                        if (val.name == self.variable) {
+                            varList.val(self.variable);
+                        }
+                    });
+                }
+
+                varList.change(function () {
+                    $.each(vars, function (i, val) {
+                        if (varList.val() == val.name) {
+                            varAddr[0].innerText = val.addr;
+                            return true;
+                        }
+                    });
+                });
+
+                endpointList.change(function () {
+                    updateVarList(endpointList.val());
+                });
+                updateVarList(self.endpoint);
+
+                modeList.change(function () {
+                    if (modeList.val() == "single") {
+                        varList.parent().show();
+                    } else {
+                        varList.parent().hide();
+                    }
+                });
+                modeList.change();
+            }
+        });
+
+    })();
+</script>
+
+<!-- ######################################################################################## -->
+
+<script type="text/html" data-template-name="bnr control">
+	<div class="form-row">
+		<label for="node-input-endpoint"><i class="fa fa-bolt"></i> <span data-i18n="bnr.control.label.endpoint"></span></label>
+		<input type="text" id="node-input-endpoint" data-i18n="[placeholder]bnr.control.label.endpoint">
+	</div>
+	<div class="form-row">
+		<label for="node-input-function"><i class="fa fa-sliders"></i> <span data-i18n="bnr.control.label.function"></span></label>
+		<select type="text" id="node-input-function">
+			<option value="cycletime" data-i18n="bnr.control.function.cycletime"></option>
+			<option value="trigger" data-i18n="bnr.control.function.trigger"></option>
+		</select>
+	</div>
+	<div class="form-row">
+		<label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="bnr.label.name"></span></label>
+		<input type="text" id="node-input-name" data-i18n="[placeholder]bnr.label.name">
+	</div>
+</script>
+
+<script type="text/html" data-help-name="bnr control">
+	<p>Enables advanced control of the PLC and the connection</p>
+	<p>This node was created by <a href="https://st-one.io" target="_blank">ST-One</a></p>
+	
+	<h3>Details</h3>
+	<p>The behavior of this node is changed according to the selected function. Each function
+		has its own configuration, expects different parameters in the messages, and sends
+		different messages out
+	</p>
+	<dl class="message-properties">
+		<dt>Cycle Time</dt>
+		<dd>
+			Changes the time interval between each cyclic read 
+			of variables. It expects a message with <code>payload</code> with a 
+			positive number, being the time in milliseconds between each read. A 
+			value of zero disables the cyclic read.
+		</dd>
+
+		<dt>Trigger read</dt>
+		<dd>
+			Manually triggers a read cycle. No message parameters are used and the 
+			same message is sent on the output. Useful when longer cycle times are 
+			used, but an instant feedback is needed (for example after changing a 
+			variable). Note that the <i>melsec in</i> nodes are still required to read
+			the values of the variables.
+		</dd>
+	</dl>
+</script>
+
+<script type="text/javascript">
+	RED.nodes.registerType('bnr control', {
+		category: 'plc',
+		defaults: {
+			endpoint: {
+				value: "",
+				type: "bnr endpoint",
+				required: true
+			},
+			function: {
+				value: "cycletime"
+			},
+			name: {
+				value: ""
+			}
+		},
+		color: "#FFFB02",
+		inputs: 1,
+		outputs: 1,
+		icon: "serial.png",
+		paletteLabel: "bnr control",
+		label: function () {
+			if (this.name) return this.name;
+			return this._("bnr.control.label.name");
+		},
+		labelStyle: function () {
+			return this.name ? "node_label_italic" : "";
+		}
+	});
+</script>
+
