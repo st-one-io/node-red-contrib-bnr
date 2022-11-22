@@ -117,11 +117,6 @@
 </script>
 
 <script type="text/javascript">
-    
-	function validateSerialport(serialport) {
-		if (!serialport || serialport === "") return false;
-		return true;
-	}
 	
 	function validateBNRAddress(address) {
         if (!address) return 'ERR_PARSE_EMPTY';
@@ -187,9 +182,6 @@
             var labelName = this._("bnr.endpoint.label.variables.name");
 			var labelAddr = this._("bnr.endpoint.label.variables.addr");
 			var labelDel = this._("bnr.endpoint.label.variables.del");
-
-			var fieldSerialport = $('#node-config-input-serialport');
-			var lookupSerialportBtn = $('#node-config-lookup-serialport');
             
             $("#node-config-input-cycletime").spinner({
                 min: 0
@@ -371,9 +363,9 @@
 				};
 				reader.readAsText(file);
 			}
-			$('#node-config-fd1-endpoint-var-import').on('change', importCSV);
-			$('#node-config-fd1-endpoint-var-import-btn').click(function () {
-				$('#node-config-fd1-endpoint-var-import').click();
+			$('#node-config-bnr-endpoint-var-import').on('change', importCSV);
+			$('#node-config-bnr-endpoint-var-import-btn').click(function () {
+				$('#node-config-bnr-endpoint-var-import').click();
 			})
 
 
