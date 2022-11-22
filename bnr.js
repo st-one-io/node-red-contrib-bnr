@@ -190,7 +190,7 @@ module.exports = function (RED) {
                 that.removeListener('connected',onConnect)      
                 that.removeListener('disconnected',onDisconnect) 
                 that.removeListener('error',onError) 
-                that.removeListener('timeout',onTimeout)           
+                that.removeListener('timeout',onTimeout)
 
                 bnr.removeListener('connected', onConnect);
                 bnr.removeListener('disconnected', onDisconnect);
@@ -205,7 +205,7 @@ module.exports = function (RED) {
          * @returns {Promise}
          */
         async function disconnect(reconnect = true) {
-            if (!connected) return;
+            // if (!connected) return;
             connected = false;
 
             clearInterval(_cycleInterval);
@@ -220,6 +220,7 @@ module.exports = function (RED) {
 
             console.log("Endpoint - disconnect");
         }
+
         
         async function connect() {
             
@@ -241,7 +242,7 @@ module.exports = function (RED) {
             bnr.on('error', onError);
             bnr.on('timeout', onTimeout);
 
-            bnr.connect();
+            bnr.connect()
         }
 
         function onConnect() {
@@ -273,24 +274,16 @@ module.exports = function (RED) {
 
             manageStatus('offline');
             if (!_reconnectTimeout) {
-                _reconnectTimeout = setTimeout(connect, 1000);
+                _reconnectTimeout = setTimeout(connect, 4000);
             }
         }
 
         function onError(e) {
-            if(e == "EADDRINUSE"){
-                bnr.close()
-                return;
-            } 
-            that.emit('error',e)
-
             manageStatus('offline');
             that.error(e && e.toString());
-            disconnect();
         }
 
         function onTimeout(e) {
-
             that.emit('timeout')
 
             manageStatus('offline');
@@ -326,7 +319,9 @@ module.exports = function (RED) {
             that.removeListener('__UPDATE_CYCLE__', updateCycleEvent);
             that.removeListener('__GET_STATUS__', getStatus);           
 
-            disconnect(false).then(done);
+            disconnect(false)
+            .then(done)
+            .catch()//TODO:
 
             console.log("Endpoint - on close!");
         });
