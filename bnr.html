@@ -63,51 +63,15 @@
 	</p>
 
 	<p>
-		The <strong>Baud Rate</strong> and <strong>Error Detection</strong> must both be set according 
-		to the value configured on the port used for communicating with the PLC.
+		The <strong>Time Out</strong> Response timeout from the PLC.
 	</p>
 
 	<h3>Variable addressing</h3>
 
-	<ul>
-		<li>FILE TYPE</li>
-		<ul>
-			<li>O: Output</li>
-			<li>I: Input</li>
-			<li>S: Status</li>
-			<li>B: Binary</li>
-			<li>N: Integer</li>
-			<li>T: Timer</li>
-			<li>C: Counter</li>
-			<li>R: Control</li>
-			<li>F: Float</li>
-		</ul>
-		<li>FILE NUMBER</li>
-		<ul>
-			<li>0,1,2... (Ex. B3 (3 is the file number)).</li>
-		</ul>
-		<li>ELEMENT NUMBER(:)</li>
-		<ul>
-			<li>0,1,2... (Ex. S2:4 (4 is the element number)).</li>
-		</ul>
-		<li>SUB-ELEMENT NUMBER(.)</li>
-		<ul>
-			<li>0,1,2... (Ex. I1:0.5 (5 is the sub-element number)).</li>
-		</ul>
-		<li>BIT OFFSET(/)</li>
-		<ul>
-			<li>0,1,2... (Ex. O0:0.0/14 (14 is the bit offset)).</li>
-		</ul>
-	</ul>
-
 	<h4>Examples</h4>
 	<ul>
-		<li>O0:0.1 - Reads a sub-element (16 bits/word)</li>
-		<li>I1:0.2/3 - Reads a single bit</li>
-		<li>N7:0 - Reads an INTEGER element (16 bits/word)</li>
-		<li>F8:0 - Reads a FLOAT element (32 bits/floating point number)</li>
-		<li>N7:1/15 - Reads a single bit</li>
-		<li>T4:0 - Reads a TIMER element (48 bits/parsed timer object)</li>
+		<li>NameTask:Var - read a single var</li>
+		<li>NameTask:Var[2] - single a single var in array</li>
 	</ul>
 
 </script>
