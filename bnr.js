@@ -213,9 +213,12 @@ module.exports = function (RED) {
 
             if (bnr) {
                 if (!reconnect) bnr.removeListener('disconnected', onDisconnect);
-                await bnr.destroy();
-                removeListeners();
-                bnr = null;
+                bnr.destroy().
+                then(() => {
+                    removeListeners();
+                    bnr = null;
+                }).catch(err => onError(err));
+                
             }
 
             console.log("Endpoint - disconnect");
@@ -281,6 +284,7 @@ module.exports = function (RED) {
         function onError(e) {
             manageStatus('offline');
             that.error(e && e.toString());
+            disconnect();
         }
 
         function onTimeout(e) {
@@ -321,7 +325,7 @@ module.exports = function (RED) {
 
             disconnect(false)
             .then(done)
-            .catch()//TODO:
+            .catch(err => onError(err))//TODO:
 
             console.log("Endpoint - on close!");
         });
