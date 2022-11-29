@@ -6,11 +6,14 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Fernando Amorim",
+  "author": "Fernando Amorim <fernando.amorim@st-one.io>",
   "license": "ISC",
   "node-red": {
     "nodes": {
       "bnr": "bnr.js"
     }
+  },
+  "optionalDependencies": {
+    "@protocols/node-bnr": "^1.0.0"
   }
 }
