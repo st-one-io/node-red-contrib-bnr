@@ -34,7 +34,7 @@
             },
             "validation": {
                 "ERR_PARSE_EMPTY": "Address cannot be empty",
-                "ERR_PARSE_UNKNOWN_FORMAT": "Unknown address format, check node's help section",
+                "ERR_PARSE_UNKNOWN_FORMAT": "Unknown address format, check node's help section"
             }
         },
         "in": {
