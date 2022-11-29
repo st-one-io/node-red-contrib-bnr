@@ -4,8 +4,14 @@
   GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
 */
 
-const BnR = require('./node_modules/ber_ina').INACpu
-const {itemGroup} = require('./node_modules/ber_ina')
+try{
+    var BnR = require('./node_modules/ber_ina').INACpu
+    var {itemGroup} = require('./node_modules/ber_ina')
+}catch(error){
+    var BnR = null;
+    var itemGroup = null;
+};
+    
 
 const MIN_CYCLE_TIME = 500;
 
@@ -227,6 +233,8 @@ module.exports = function (RED) {
         
         async function connect() {
             
+            if (!BnR || !itemGroup) return that.error('Missing "@protocols/node-bnr" dependency, avaliable only on the ST-One hardware. Please contact us at "st-one.io" for pricing and more information.')
+
             manageStatus('connecting');
             
             if (_reconnectTimeout !== null) {
