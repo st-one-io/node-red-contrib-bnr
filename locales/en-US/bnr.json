@@ -35,9 +35,6 @@
             "validation": {
                 "ERR_PARSE_EMPTY": "Address cannot be empty",
                 "ERR_PARSE_UNKNOWN_FORMAT": "Unknown address format, check node's help section",
-                "ERR_PARSE_FILENUM": "File number must not be greater than 254",
-                "ERR_PARSE_FILETYPE": "Invalid file type",
-                "ERR_PARSE_ELENUM": "Element number must not be greater than 254"
             }
         },
         "in": {
