@@ -5,8 +5,8 @@
 */
 
 try{
-    var BnR = require('./node_modules/ber_ina').INACpu
-    var {itemGroup} = require('./node_modules/ber_ina')
+    var BnR = require('@protocols/node-bnr').INACpu
+    var {itemGroup} = require('@protocols/node-bnr')
 }catch(error){
     var BnR = null;
     var itemGroup = null;
