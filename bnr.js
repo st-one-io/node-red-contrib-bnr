@@ -113,6 +113,18 @@ module.exports = function (RED) {
         
         RED.nodes.createNode(this, config);
 
+        RED.httpAdmin.get('/__node-red-contrib-bnr/getallvar', async function (req, res) {
+            if (!bnr) return res.status(500).end();
+
+            res.attachment('varList.csv')
+            for await (const elm of bnr.getVariableListGenerator()){
+                res.write(elm);
+                res.write('\n');
+            };
+            res.end()
+            
+        });
+
         //avoids warnings when we have a lot of bnr In nodes
         this.setMaxListeners(0);
 
@@ -193,11 +205,6 @@ module.exports = function (RED) {
 
         function removeListeners() {
              if (bnr !== null) {
-                that.removeListener('connected',onConnect)      
-                that.removeListener('disconnected',onDisconnect) 
-                that.removeListener('error',onError) 
-                that.removeListener('timeout',onTimeout)
-
                 bnr.removeListener('connected', onConnect);
                 bnr.removeListener('disconnected', onDisconnect);
                 bnr.removeListener('error', onError);
@@ -263,8 +270,6 @@ module.exports = function (RED) {
 
             addressGroup = new itemGroup(bnr);
 
-            that.emit('connected')
-
             manageStatus('online');
 
             let _vars = createTranslationTable(config.vartable);
@@ -281,7 +286,6 @@ module.exports = function (RED) {
         }
 
         function onDisconnect() {
-            that.emit('disconnected')
 
             manageStatus('offline');
             if (!_reconnectTimeout) {
@@ -296,8 +300,6 @@ module.exports = function (RED) {
         }
 
         function onTimeout(e) {
-            that.emit('timeout')
-
             manageStatus('offline');
             that.error(e && e.toString());
             disconnect();
