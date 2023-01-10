@@ -16,7 +16,8 @@
                     "name": "Var. Name",
                     "addr": "Var. Address",
                     "export": "Export",
-                    "import": "Import"
+                    "import": "Import",
+                    "getvar": "Get All Vars"
                 },
                 "address": "Address",
                 "port": "Port",
