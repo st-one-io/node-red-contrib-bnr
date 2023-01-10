@@ -24,6 +24,7 @@
 	<div class="form-row">
         <label for="node-config-input-cycletime"><i class="fa fa-refresh"></i> <span data-i18n="bnr.endpoint.label.cycletime"></span></label>
         <input type="text" id="node-config-input-cycletime" data-i18n="[placeholder]bnr.endpoint.label.cycletime" style="width: 80px;"> <span>ms</span>
+		<a href="#" class="editor-button editor-button-medium" id="node-config-bnr-endpoint-var-getvar" style="margin: 4px; float: right"><i class="fa fa-download"></i> <span data-i18n="bnr.endpoint.label.variables.getvar"></span></a>
     </div>
 
     <div class="form-row" style="margin-bottom:0;">
@@ -146,6 +147,8 @@
             var labelName = this._("bnr.endpoint.label.variables.name");
 			var labelAddr = this._("bnr.endpoint.label.variables.addr");
 			var labelDel = this._("bnr.endpoint.label.variables.del");
+
+			var getAllVarBtn = $('#node-config-bnr-endpoint-var-getvar');
             
             $("#node-config-input-cycletime").spinner({
                 min: 0
@@ -256,6 +259,36 @@
 					}
 				}
 			}
+
+			getAllVarBtn.click(async function () {
+				if (getAllVarBtn.hasClass('disabled')) return;
+				
+				getAllVarBtn.addClass('disabled');
+				var iconLookup = getAllVarBtn.children('i');
+				iconLookup.removeClass('fa-search').addClass('fa-spinner fa-spin fa-fw');
+
+				fetch('__node-red-contrib-bnr/getallvar')
+				.then(async res => {
+					const file = await res.blob()
+					const fileURL = URL.createObjectURL(file);
+
+					const anchor = document.createElement('a');
+					anchor.href = fileURL;
+					anchor.download = "allVars.csv"
+
+					document.body.appendChild(anchor);
+					anchor.click();
+					document.body.removeChild(anchor);
+
+					URL.revokeObjectURL(fileURL);
+
+					iconLookup.removeClass('fa-spinner fa-spin fa-fw').addClass('fa-search');
+					getAllVarBtn.removeClass('disabled');
+				}).catch(e => {
+					iconLookup.removeClass('fa-spinner fa-spin fa-fw').addClass('fa-search');
+					getAllVarBtn.removeClass('disabled');
+				})
+			});
 
 			$("#node-config-input-add-variable").click(function () {
                 generateVariable({
