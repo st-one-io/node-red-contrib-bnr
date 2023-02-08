@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-bnr",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "",
   "main": "bnr.js",
   "scripts": {
@@ -13,6 +13,16 @@
       "bnr": "bnr.js"
     }
   },
+  "keywords": [
+    "plc",
+    "ber",
+    "bnr",
+    "ina",
+    "pvi",
+    "hardware",
+    "protocol",
+    "node-red"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/st-one-io/node-red-contrib-bnr.git"
