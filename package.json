@@ -22,6 +22,6 @@
   },
   "homepage": "https://github.com/st-one-io/node-red-contrib-bnr#readme",
   "optionalDependencies": {
-    "@protocols/node-bnr": "1.1.1"
+    "@protocols/node-bnr": "1.1.2"
   }
 }
