@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-bnr",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "",
   "main": "bnr.js",
   "scripts": {
@@ -13,6 +13,14 @@
       "bnr": "bnr.js"
     }
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/st-one-io/node-red-contrib-bnr.git"
+  },
+  "bugs": {
+    "url": "https://github.com/st-one-io/node-red-contrib-bnr/issues"
+  },
+  "homepage": "https://github.com/st-one-io/node-red-contrib-bnr#readme",
   "optionalDependencies": {
     "@protocols/node-bnr": "1.1.1"
   }
