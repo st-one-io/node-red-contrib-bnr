@@ -19,7 +19,7 @@
                     "import": "Import",
                     "getvar": "Get All Vars"
                 },
-                "address": "Address",
+                "ip": "Address",
                 "port": "Port",
                 "cycletime": "Cycle Time",
                 "search": "Search",
