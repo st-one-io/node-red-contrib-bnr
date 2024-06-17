@@ -114,15 +114,21 @@ module.exports = function (RED) {
         RED.nodes.createNode(this, config);
 
         RED.httpAdmin.get('/__node-red-contrib-bnr/getallvar', async function (req, res) {
-            if (!bnr) return res.status(500).end();
-
-            res.attachment('varList.csv')
-            for await (const elm of bnr.getVariableListGenerator()){
-                res.write(elm);
-                res.write('\n');
-            };
-            res.end()
-            
+            if (!bnr) return res.status(500).json({ error: 'BNR service is unavailable' });
+        
+            res.setHeader('Content-Type', 'text/csv');
+            res.setHeader('Content-Disposition', 'attachment; filename=varList.csv');
+        
+            try {
+                for await (const elm of bnr.getVariableListGenerator()) {
+                    res.write(elm);
+                    res.write('\n');
+                }
+                res.end();
+            } catch (error) {
+                console.error('Error while generating variable list:', error);
+                res.status(500).end('Error while generating variable list');
+            }
         });
 
         //avoids warnings when we have a lot of bnr In nodes
