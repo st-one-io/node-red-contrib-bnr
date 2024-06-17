@@ -261,34 +261,36 @@
 
 			getAllVarBtn.click(async function () {
 				if (getAllVarBtn.hasClass('disabled')) return;
-				
+
 				getAllVarBtn.addClass('disabled');
 				var iconLookup = getAllVarBtn.children('i');
 				iconLookup.removeClass('fa-search').addClass('fa-spinner fa-spin fa-fw');
 
-				fetch('__node-red-contrib-bnr/getallvar')
-				.then(async res => {
-					const file = await res.blob()
+				try {
+					const res = await fetch('__node-red-contrib-bnr/getallvar');
+					
+					if (!res.ok) throw new Error('Network response was not ok');
+
+					const file = await res.blob();
 					const fileURL = URL.createObjectURL(file);
 
 					const anchor = document.createElement('a');
 					anchor.href = fileURL;
-					anchor.download = "allVars.csv"
+					anchor.download = "allVars.csv";
 
 					document.body.appendChild(anchor);
 					anchor.click();
 					document.body.removeChild(anchor);
 
 					URL.revokeObjectURL(fileURL);
-
+				} catch (e) {
+					console.error('Error:', e);
+					alert('An error occurred while downloading the file');
+				} finally {
 					iconLookup.removeClass('fa-spinner fa-spin fa-fw').addClass('fa-search');
 					getAllVarBtn.removeClass('disabled');
-				}).catch(e => {
-					iconLookup.removeClass('fa-spinner fa-spin fa-fw').addClass('fa-search');
-					getAllVarBtn.removeClass('disabled');
-				})
+				}
 			});
-
 			$("#node-config-input-add-variable").click(function () {
                 generateVariable({
 					name: "",
