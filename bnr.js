@@ -133,6 +133,7 @@ module.exports = function (RED) {
                 that.warn('Connected, getting variable list...'); 
                         try {
                                 res.attachment('varList.csv'); 
+                                //uncomment the above for testing:
                                 //for await (const elm of getVariableListGeneratorTest()) {
                                 for await (const elm of inacpu.getVariableListGenerator()) {
                                     const row = Object.values(elm).join(',');
@@ -151,20 +152,15 @@ module.exports = function (RED) {
                 })
             
                 try {
-                    //await inacpu.connect();
-                    //for testing
-                    inacpu.emit('connected');
+                    await inacpu.connect();
+                    //uncomment the above for testing:
+                    //inacpu.emit('connected');
                 } catch (e) {
                     clearInterval(intervalId);
                     that.error(`Connection failed: ${e.message}`)
                     res.status(500).end();
                 }
 
-       
-/*                 inacpu.on('timeout', ()=>{
-                    return that.error(`Timeout`)
-                }); */
-    
     }
     
 
@@ -191,15 +187,11 @@ module.exports = function (RED) {
 
         RED.httpAdmin.get('/__node-red-contrib-bnr/getallvar', async function (req, res) {
            
-       /*      res.attachment('varList.csv')
-            for await (const elm of bnr.getVariableListGenerator()){
-                res.write(elm);
-                res.write('\n');
-                }; */
-
-
-            //if (!address||!sa||!port||!timeout) return res.status(500).end("Missing parameter for connection");
-            if (!address||!sa||!port||!timeout) return that.error("Error: Missing parameter for connection")
+     
+            if (!address||!sa||!port||!timeout){
+                 that.error("Error: Missing parameter for connection")
+                 res.status(500).send();
+            } 
            
             //creates new instance for connection
             const inacpu = new BnR(address, {sa, port, timeout});
