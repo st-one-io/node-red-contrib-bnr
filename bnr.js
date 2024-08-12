@@ -7,6 +7,7 @@
 try{
     var BnR = require('@protocols/node-bnr').INACpu
     var {itemGroup} = require('@protocols/node-bnr')
+    var fs = require('fs');
 }catch(error){
     var BnR = null;
     var itemGroup = null;
@@ -92,7 +93,82 @@ module.exports = function (RED) {
             fn(msg, send, done);
         });
     }
+
+    //just for testing
+    async function* getVariableListGeneratorTest() {
+        const variables = [
+            { name: 'Variable1', value: 100, type: 'INT' },
+            { name: 'Variable2', value: 3.14, type: 'FLOAT' },
+            { name: 'Variable3', value: 'Hello', type: 'STRING' },
+            { name: 'Variable4', value: true, type: 'BOOL' }
+        ];
+        
+        for (const variable of variables) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            yield variable;
+        }
+    }
     
+
+    async function getAllVariables(inacpu, res, that) {
+            that.warn('Waiting for connection...'); 
+            let intervalId;
+
+            const sendWaitingMessage = () => {
+                that.warn('Still waiting for connection...');
+            };
+            
+            // Sends periodically 
+            intervalId = setInterval(sendWaitingMessage, 5000);
+            inacpu.on('error', (e) => {
+                that.error(`ERROR: ${e}`);
+            });
+        
+            inacpu.on('disconnected', () => {
+                that.warn(`Finished and Disconnected`);
+            });
+        
+            inacpu.on('connected', async () => {
+                clearInterval(intervalId);
+                that.warn('Connected, getting variable list...'); 
+                        try {
+                                res.attachment('varList.csv'); 
+                                //for await (const elm of getVariableListGeneratorTest()) {
+                                for await (const elm of inacpu.getVariableListGenerator()) {
+                                    const row = Object.values(elm).join(',');
+                                    res.write(row + '\n'); 
+                                }
+                                res.end();
+                           
+                        } catch (e) {
+                            that.error(`Error retrieving variables: ${e.message}`)
+                            res.status(500).end();
+                        }
+                        finally {
+                            await inacpu.disconnect();
+                            await inacpu.destroy();
+                        }
+                })
+            
+                try {
+                    //await inacpu.connect();
+                    //for testing
+                    inacpu.emit('connected');
+                } catch (e) {
+                    clearInterval(intervalId);
+                    that.error(`Connection failed: ${e.message}`)
+                    res.status(500).end();
+                }
+
+       
+/*                 inacpu.on('timeout', ()=>{
+                    return that.error(`Timeout`)
+                }); */
+    
+    }
+    
+
+
     // <Begin> --- Endpoint ---
     function BNREndpoint(config) {
         let oldValues = {};
@@ -114,15 +190,29 @@ module.exports = function (RED) {
         RED.nodes.createNode(this, config);
 
         RED.httpAdmin.get('/__node-red-contrib-bnr/getallvar', async function (req, res) {
-            if (!bnr) return res.status(500).end();
-
-            res.attachment('varList.csv')
+           
+       /*      res.attachment('varList.csv')
             for await (const elm of bnr.getVariableListGenerator()){
                 res.write(elm);
                 res.write('\n');
-            };
-            res.end()
-            
+                }; */
+
+
+            //if (!address||!sa||!port||!timeout) return res.status(500).end("Missing parameter for connection");
+            if (!address||!sa||!port||!timeout) return that.error("Error: Missing parameter for connection")
+           
+            //creates new instance for connection
+            const inacpu = new BnR(address, {sa, port, timeout});
+            if (!inacpu){
+                that.error("Error: Unable to create instance for connection")
+                res.status(500).send();
+            }
+            try {
+                await getAllVariables(inacpu,res,that);
+            } catch (e) {
+                that.error(`Error: ${e.message}`)
+                res.status(500).send();
+            }
         });
 
         //avoids warnings when we have a lot of bnr In nodes
