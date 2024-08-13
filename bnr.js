@@ -113,6 +113,9 @@ module.exports = function (RED) {
     async function getAllVariables(inacpu, res, that) {
             that.warn('Waiting for connection...'); 
             let intervalId;
+            let timeoutId;
+            let timedOut = false;
+
 
             const sendWaitingMessage = () => {
                 that.warn('Still waiting for connection...');
@@ -120,17 +123,43 @@ module.exports = function (RED) {
             
             // Sends periodically 
             intervalId = setInterval(sendWaitingMessage, 5000);
+ 
+            // Define the timeout
+            timeoutId = setTimeout(async () => {
+                //garantee it only happens once
+                if (!timedOut) { 
+                    timedOut = true;
+                    clearInterval(intervalId); 
+                    inacpu.removeAllListeners();
+                    that.error('Connection timeout');
+                    await inacpu.disconnect();
+                    await inacpu.destroy();
+                    res.status(500).end();
+                }
+            }, inacpu.timeout);
+
             inacpu.on('error', (e) => {
-                that.error(`ERROR: ${e}`);
+                if (!timedOut) {
+                    clearInterval(intervalId);
+                    clearTimeout(timeoutId);
+                    timedOut = true;
+                    that.error(`ERROR: ${e}`);
+                }
             });
-        
+
             inacpu.on('disconnected', () => {
+                clearInterval(intervalId);
+                clearTimeout(timeoutId);
+                timedOut = true;
                 that.warn(`Finished and Disconnected`);
             });
         
             inacpu.on('connected', async () => {
-                clearInterval(intervalId);
-                that.warn('Connected, getting variable list...'); 
+                if (!timedOut) {
+                    clearInterval(intervalId);
+                    clearTimeout(timeoutId);
+                    timedOut = true; 
+                    that.warn('Connected, getting variable list...'); 
                         try {
                                 res.attachment('varList.csv'); 
                                 //uncomment the above for testing:
@@ -149,6 +178,8 @@ module.exports = function (RED) {
                             await inacpu.disconnect();
                             await inacpu.destroy();
                         }
+
+                    }
                 })
             
                 try {
@@ -156,9 +187,13 @@ module.exports = function (RED) {
                     //uncomment the above for testing:
                     //inacpu.emit('connected');
                 } catch (e) {
-                    clearInterval(intervalId);
-                    that.error(`Connection failed: ${e.message}`)
-                    res.status(500).end();
+                    if (!timedOut) {
+                        clearInterval(intervalId);
+                        clearTimeout(timeoutId);
+                        timedOut = true;
+                        that.error(`Connection failed: ${e.message}`)
+                        res.status(500).end();
+                    }
                 }
 
     }
@@ -194,7 +229,7 @@ module.exports = function (RED) {
             } 
            
             //creates new instance for connection
-            const inacpu = new BnR(address, {sa, port, timeout});
+            var inacpu = new BnR(address, {sa, port, timeout});
             if (!inacpu){
                 that.error("Error: Unable to create instance for connection")
                 res.status(500).send();
@@ -206,6 +241,8 @@ module.exports = function (RED) {
                 res.status(500).send();
             }
         });
+
+
 
         //avoids warnings when we have a lot of bnr In nodes
         this.setMaxListeners(0);

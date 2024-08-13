@@ -268,21 +268,23 @@
 
 				fetch('__node-red-contrib-bnr/getallvar')
 				.then(async res => {
-					const file = await res.blob()
-					const fileURL = URL.createObjectURL(file);
+					if (res.ok) { 
+						const file = await res.blob()
+						const fileURL = URL.createObjectURL(file);
 
-					const anchor = document.createElement('a');
-					anchor.href = fileURL;
-					anchor.download = "allVars.csv"
+						const anchor = document.createElement('a');
+						anchor.href = fileURL;
+						anchor.download = "allVars.csv"
 
-					document.body.appendChild(anchor);
-					anchor.click();
-					document.body.removeChild(anchor);
+						document.body.appendChild(anchor);
+						anchor.click();
+						document.body.removeChild(anchor);
 
-					URL.revokeObjectURL(fileURL);
+						URL.revokeObjectURL(fileURL);
 
-					iconLookup.removeClass('fa-spinner fa-spin fa-fw').addClass('fa-search');
-					getAllVarBtn.removeClass('disabled');
+						iconLookup.removeClass('fa-spinner fa-spin fa-fw').addClass('fa-search');
+						getAllVarBtn.removeClass('disabled');
+					}
 				}).catch(e => {
 					iconLookup.removeClass('fa-spinner fa-spin fa-fw').addClass('fa-search');
 					getAllVarBtn.removeClass('disabled');
