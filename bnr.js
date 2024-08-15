@@ -94,70 +94,46 @@ module.exports = function (RED) {
         });
     }
 
-    //just for test the generator sending a big amount of data
-    async function* getVariableListGeneratorTest() {
-          for (let i = 1; i <= 1000000; i++) {
-            yield `Name: Variable${i}, Value: ${i}, Type: INT`;
-            yield `Name: Variable${i}, Value: ${i * 3.14}, Type: FLOAT`;
-            yield `Name: Variable${i}, Value: Hello ${i}, Type: STRING`;
-            yield `Name: Variable${i}, Value: ${i % 2 === 0}, Type: BOOL`;
-            yield `Name: Variable${i}, Value: ${i + 100}, Type: INT`;
-        }    
-    }
-    
-
         async function getAllVariables(inacpu, res) {
             let intervalId;
-            let timeoutId;
             let timedOut = false;
 
-
+            console.log('Waiting for connection...')
             const sendWaitingMessage = () => {
                 console.log('Still waiting for connection...')
             };
             
             // Sends 'connecting' message periodically, while not connected
             intervalId = setInterval(sendWaitingMessage, 5000);
-            timeoutId = setTimeout(async () => {
-                //garantee it only happens once and that the inacpu instance is destroyed
-                if (!timedOut) { 
-                    timedOut = true;
-                    clearInterval(intervalId); 
-                    inacpu.removeAllListeners();
-                    console.log('Connection timeout')
-                    await inacpu.disconnect();
-                    await inacpu.destroy();
-                    res.status(500).end();
-                }
-            }, inacpu.timeout);
+     
 
             inacpu.on('error', (e) => {
-                if (!timedOut) {
                     clearInterval(intervalId);
-                    clearTimeout(timeoutId);
-                    timedOut = true;
                     console.log(`ERROR: ${e}`)
-                }
+            });
+
+            inacpu.on('timeout',  async () => {
+                    clearInterval(intervalId);
+                    inacpu.removeAllListeners();
+                    console.log('Connection timeout')
+                    inacpu.disconnect();
+                    inacpu.destroy();
+                    res.status(500).end();
             });
 
             inacpu.on('disconnected', () => {
                 clearInterval(intervalId);
-                clearTimeout(timeoutId);
-                timedOut = true;
                 console.log("Finished and Disconnected")
             });
         
            inacpu.on('connected', async () => {
-                if (!timedOut) {
                     clearInterval(intervalId);
-                    clearTimeout(timeoutId);
-                    timedOut = true; 
                    console.log('Connected, getting variable list...')
                      try {
                                 let hasData = false;
                                 res.attachment('varList.csv');
                                 res.write('Variable\n'); // CSV headers
-                                for await (const elm of getVariableListGeneratorTest()) {
+                                for await (const elm of inacpu.getVariableListGenerator()) {
                                     // Ensure each variable is formatted in a separated line in csv
                                     res.write(`${elm}\n`);
                                     hasData = true;
@@ -173,10 +149,8 @@ module.exports = function (RED) {
                                 }
                            
                         } catch (e) {
-                            if (!res.writableEnded) {
                                 res.status(500).end();
                                 console.log(`Error retrieving variables: ${e.message}`)
-                            }
                         }                    
 
                         finally {
@@ -184,20 +158,14 @@ module.exports = function (RED) {
                             await inacpu.destroy();
                         }
 
-                    }
                 })     
                 try {
                      await inacpu.connect();
-                    //uncomment the bellow for testing a simulated connection:
-                    //inacpu.emit('connected');
+                  
                 } catch (e) {
-                    if (!timedOut) {
                         clearInterval(intervalId);
-                        clearTimeout(timeoutId);
-                        timedOut = true;
                         console.log(`Connection failed: ${e.message}`)
                         res.status(500).end();
-                    }
                 }
     }
 
