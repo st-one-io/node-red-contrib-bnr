@@ -266,7 +266,13 @@
 				var iconLookup = getAllVarBtn.children('i');
 				iconLookup.removeClass('fa-search').addClass('fa-spinner fa-spin fa-fw');
 
-				fetch('__node-red-contrib-bnr/getallvar')
+				const params = new URLSearchParams({
+						param1: document.getElementById("node-config-input-ip").val(),
+						param2: 'value2'
+				});
+
+
+				fetch('__node-red-contrib-bnr/getallvar?${params}')
 				.then(async res => {
 					if (res.ok) { 
 						const file = await res.blob()
