@@ -267,12 +267,17 @@
 				iconLookup.removeClass('fa-search').addClass('fa-spinner fa-spin fa-fw');
 
 				const params = new URLSearchParams({
-						param1: document.getElementById("node-config-input-ip").val(),
-						param2: 'value2'
+						port: document.getElementById("node-config-input-port").value,
+						ip: document.getElementById("node-config-input-ip").value,
+						sa: document.getElementById("node-config-input-sa").value,
+						timeout:document.getElementById("node-config-input-timeout").value,
+						cycletime:document.getElementById("node-config-input-cycletime").value
 				});
 
 
-				fetch('__node-red-contrib-bnr/getallvar?${params}')
+				fetch(`__node-red-contrib-bnr/getallvar?${params}`, {
+    				method: 'GET',
+				})
 				.then(async res => {
 					if (res.ok) { 
 						const file = await res.blob()
