@@ -4,7 +4,10 @@
 -->
 
 <script type="text/html" data-template-name="bnr endpoint">
-
+	<div id="error-message" style="display: none; margin: 10px 0; padding: 10px; border-radius: 5px; background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;">
+		
+	</div>
+	
 	<div class="form-row">
 		<label for="node-config-input-ip"><i class="fa fa-globe"></i> <span data-i18n="bnr.endpoint.label.ip"></span></label>
 		<input class="input-append-left" type="text" id="node-config-input-ip" data-i18n="[placeholder]bnr.endpoint.label.ip" style="width: 40%;">
@@ -30,6 +33,9 @@
     <div class="form-row" style="margin-bottom:0;">
         <label><i class="fa fa-list"></i> <span data-i18n="bnr.endpoint.label.variables.list"></span></label>
     </div>
+
+
+
     <div class="form-row node-input-variables-container-row" style="margin-bottom: 0px;">
         <div id="node-config-input-variables-container-div" style="box-sizing: border-box; border-radius: 5px; height: 300px; padding: 5px; border: 1px solid #ccc; overflow-y:scroll;">
             <ol id="node-config-input-variables-container" style=" list-style-type:none; margin: 0;"></ol>
@@ -259,6 +265,18 @@
 				}
 			}
 
+			function showError(message) {
+					const errorDiv = document.getElementById('error-message');
+					errorDiv.textContent = message;
+					errorDiv.style.display = 'block';	
+					setTimeout(() => {
+					errorDiv.style.display = 'none';
+				}, 5000); 
+			}	
+
+			
+
+
 			getAllVarBtn.click(async function () {
 				if (getAllVarBtn.hasClass('disabled')) return;
 				
@@ -279,7 +297,8 @@
     				method: 'GET',
 				})
 				.then(async res => {
-					if (res.ok) { 
+					const result = await res.json();
+					if (res.status==200) { 
 						const file = await res.blob()
 						const fileURL = URL.createObjectURL(file);
 
@@ -292,11 +311,19 @@
 						document.body.removeChild(anchor);
 
 						URL.revokeObjectURL(fileURL);
-
-						iconLookup.removeClass('fa-spinner fa-spin fa-fw').addClass('fa-search');
-						getAllVarBtn.removeClass('disabled');
+						
 					}
+					else{
+						showError(`${result.message}`);
+					}
+
+					iconLookup.removeClass('fa-spinner fa-spin fa-fw').addClass('fa-search');
+					getAllVarBtn.removeClass('disabled');
+
+			
+				
 				}).catch(e => {
+					
 					iconLookup.removeClass('fa-spinner fa-spin fa-fw').addClass('fa-search');
 					getAllVarBtn.removeClass('disabled');
 				})
