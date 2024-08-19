@@ -6,7 +6,6 @@
 try{
     var BnR = require('@protocols/node-bnr').INACpu
     var {itemGroup} = require('@protocols/node-bnr')
-    var fs = require('fs');
 }catch(error){
     var BnR = null;
     var itemGroup = null;
@@ -16,8 +15,6 @@ try{
 const MIN_CYCLE_TIME = 500;
 
 module.exports = function (RED) {
-  // Escuta o evento `nodes-ready` para emitir uma mensagem no debug
-
     // ----------- BnR Endpoint -----------
     function generateStatus(status, val) {
         var obj;
