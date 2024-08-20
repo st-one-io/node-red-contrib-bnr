@@ -15,6 +15,7 @@ try{
 const MIN_CYCLE_TIME = 500;
 
 module.exports = function (RED) {
+
     // ----------- BnR Endpoint -----------
     function generateStatus(status, val) {
         var obj;
@@ -93,7 +94,6 @@ module.exports = function (RED) {
 
         async function getAllVariables(inacpu, res) {
 
-
             let intervalId;
 
             console.log('Waiting for connection...')
@@ -110,10 +110,7 @@ module.exports = function (RED) {
             inacpu.on('error', (e) => {
                     clearInterval(intervalId);
                     console.log(`ERROR: ${e}`)
-                   return  res.status(500).json({
-                        success: false,
-                        message: `ERROR: ${e}`
-                    }).send();
+                   return  res.status(500).send(`ERROR: ${e}`).send();
             });
 
             inacpu.on('timeout',  async () => {
@@ -121,10 +118,7 @@ module.exports = function (RED) {
                     console.log('Connection timeout')
                     inacpu.disconnect();
                     inacpu.destroy();
-                    return res.status(500).json({
-                        success: false,
-                        message: `Connection timeout`
-                    }).send();
+                    return res.status(500).send( `Connection timeout`).send();
             });
 
             inacpu.on('disconnected', () => {
@@ -135,8 +129,11 @@ module.exports = function (RED) {
             });
         
            inacpu.on('connected', async () => {
+                clearInterval(intervalId);
+                console.log('Connected! Getting variable list....');
     
                      try {
+
                                 let hasData = false;
                                 res.attachment('varList.csv');
                                 res.write('Variable\n'); // CSV headers
@@ -146,20 +143,21 @@ module.exports = function (RED) {
                                     hasData = true;
                                 }
                 
-                                console.log('CSV download complete');
+                                console.log('Success! Downloading Variables List..');
 
                                 if (!hasData) {
-                                    console.warn('No data was written to the CSV.');
+                                    console.warn('No variables available.');
                         
                                 } 
                                 res.end();
                            
-                        } catch (e) {
+                        } 
+                        
+                        catch (e) {
                             console.log(`Error retrieving variables: ${e.message}`)
-                           return res.status(500).json({
-                                success: false,
-                                message: `Error retrieving variables: ${e.message}`
-                            });
+                            return  res.send(
+                                `Error retrieving variables : ${e.message}`
+                            );
                                
                         }                    
 
@@ -170,15 +168,14 @@ module.exports = function (RED) {
 
                 })     
                 try {
-                     await inacpu.connect();
+                    await inacpu.connect();
+
+                    // inacpu.emit("connected")
                   
                 } catch (e) {
                         clearInterval(intervalId);
                         console.log(`Connection failed: ${e.message}`)
-                        return res.status(500).json({
-                            success: false,
-                            message: `Connection failed: ${e.message}`
-                        });
+                        return res.status(500).send(`Connection failed: ${e.message}`);
                         
                 }
     }
@@ -189,28 +186,19 @@ module.exports = function (RED) {
         const { port, ip, sa, timeout,cycletime } = req.query;
         if (!ip||!sa||!port||!timeout){
             console.log("Error: Missing parameter for connection")
-           return res.status(500).json({
-                success: false,
-                message: 'Missing parameter for connection.'
-            }).send();
+           return res.status(500).send('Missing parameter for connection.')
        } 
        //creates new instance for connection
        var inacpu = new BnR(ip, {sa, port, timeout});
        if (!inacpu){
            console.log("Error: Unable to create instance for connection")
-          return res.status(500).json({
-            success: false,
-            message: 'Error: Unable to create instance for connection'
-        }).send();
+          return res.status(500).stend('Error: Unable to create instance for connecion');
        }
        try {
             await getAllVariables(inacpu,res);
        } catch (e) {
-           console.log(`Error: ${e.message}`)
-          return res.status(500).json({
-            success: false,
-            message: `Error: ${e.message}`
-        }).send();
+          console.log(`Error : ${e.message}`)
+          return res.status(500).send(`Error : ${e.message}`);
        }
     });
 
