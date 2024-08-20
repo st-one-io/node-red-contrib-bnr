@@ -295,17 +295,17 @@
 											timeout:document.getElementById("node-config-input-timeout").value,
 											cycletime:document.getElementById("node-config-input-cycletime").value
 							});
-							showLog({"message": "Waiting for connection...", "status": "success"});
+						 showLog({"message": "Waiting for connection...", "status": "success"});
 
-							setTimeout(() => {
+						 let successMessage =  setTimeout(() => {
 									showLog({"message": "Connected! Getting variable list...", "status": "success"});
-							}, params.get('timeout'));
+							}, params.get('timeout')+1000);
 
 							fetch(`__node-red-contrib-bnr/getallvar?${params}`, {
 							method: 'GET',
 							})
 							.then(async res => {
-
+								clearTimeout(successMessage)
 									if (res.ok) { 
 											const file = await res.blob()
 											const fileURL = URL.createObjectURL(file);
@@ -335,12 +335,10 @@
 
 
 							}).catch(e => {
-
 									iconLookup.removeClass('fa-spinner fa-spin fa-fw').addClass('fa-search');
 									getAllVarBtn.removeClass('disabled');
 							})
 					});
-
 
 			$("#node-config-input-add-variable").click(function () {
                 generateVariable({
