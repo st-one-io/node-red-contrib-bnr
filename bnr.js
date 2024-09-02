@@ -1,4 +1,3 @@
-//@ts-check
 /*
   Copyright: (c) 2022, ST-One
   GNU General Public License v3.0+ (see LICENSE or https://www.gnu.org/licenses/gpl-3.0.txt)
@@ -16,7 +15,7 @@ try{
 const MIN_CYCLE_TIME = 500;
 
 module.exports = function (RED) {
-    
+
     // ----------- BnR Endpoint -----------
     function generateStatus(status, val) {
         var obj;
@@ -92,7 +91,117 @@ module.exports = function (RED) {
             fn(msg, send, done);
         });
     }
+
+        async function getAllVariables(inacpu, res) {
+
+            let intervalId;
+
+            console.log('Waiting for connection...')
+          
+            const sendWaitingMessage = () => {
+                console.log('Still waiting for connection...');
+            };
     
+            
+            // Sends 'connecting' message periodically, while not connected
+            intervalId = setInterval(sendWaitingMessage, 5000);
+     
+
+            inacpu.on('error', (e) => {
+                    clearInterval(intervalId);
+                    console.log(`ERROR: ${e}`)
+                   return  res.status(500).send(`ERROR: ${e}`).send();
+            });
+
+            inacpu.on('timeout',  async () => {
+                    clearInterval(intervalId);
+                    console.log('Connection timeout')
+                    inacpu.disconnect();
+                    inacpu.destroy();
+                    return res.status(500).send( `Connection timeout`).send();
+            });
+
+            inacpu.on('disconnected', () => {
+                clearInterval(intervalId);
+                inacpu.removeAllListeners();
+                console.log("Finished and Disconnected")
+           
+            });
+        
+           inacpu.on('connected', async () => {
+                clearInterval(intervalId);
+                console.log('Connected! Getting variable list....');
+    
+                     try {
+
+                                let hasData = false;
+                                res.attachment('varList.csv');
+                                res.write('Variable\n'); // CSV headers
+                                for await (const elm of inacpu.getVariableListGenerator()) {
+                                    // Ensure each variable is formatted in a separated line in csv
+                                    res.write(`${elm}\n`);
+                                    hasData = true;
+                                }
+                
+                                console.log('Success! Downloading Variables List..');
+
+                                if (!hasData) {
+                                    console.warn('No variables available.');
+                        
+                                } 
+                                res.end();
+                           
+                        } 
+                        
+                        catch (e) {
+                            console.log(`Error retrieving variables: ${e.message}`)
+                            return  res.send(
+                                `Error retrieving variables : ${e.message}`
+                            );
+                               
+                        }                    
+
+                        finally {
+                            await inacpu.disconnect();
+                            await inacpu.destroy();
+                        }
+
+                })     
+                try {
+                    await inacpu.connect();
+
+                    // inacpu.emit("connected")
+                  
+                } catch (e) {
+                        clearInterval(intervalId);
+                        console.log(`Connection failed: ${e.message}`)
+                        return res.status(500).send(`Connection failed: ${e.message}`);
+                        
+                }
+    }
+
+    RED.httpAdmin.get('/__node-red-contrib-bnr/getallvar', async function (req, res) {
+
+    
+        const { port, ip, sa, timeout,cycletime } = req.query;
+        if (!ip||!sa||!port||!timeout){
+            console.log("Error: Missing parameter for connection")
+           return res.status(500).send('Missing parameter for connection.')
+       } 
+       //creates new instance for connection
+       var inacpu = new BnR(ip, {sa, port, timeout});
+       if (!inacpu){
+           console.log("Error: Unable to create instance for connection")
+          return res.status(500).stend('Error: Unable to create instance for connecion');
+       }
+       try {
+            await getAllVariables(inacpu,res);
+       } catch (e) {
+          console.log(`Error : ${e.message}`)
+          return res.status(500).send(`Error : ${e.message}`);
+       }
+    });
+
     // <Begin> --- Endpoint ---
     function BNREndpoint(config) {
         let oldValues = {};
@@ -110,20 +219,7 @@ module.exports = function (RED) {
         let that = this;
         let bnr = null;
         let addressGroup = null;
-        
         RED.nodes.createNode(this, config);
-
-        RED.httpAdmin.get('/__node-red-contrib-bnr/getallvar', async function (req, res) {
-            if (!bnr) return res.status(500).end();
-
-            res.attachment('varList.csv')
-            for await (const elm of bnr.getVariableListGenerator()){
-                res.write(elm);
-                res.write('\n');
-            };
-            res.end()
-            
-        });
 
         //avoids warnings when we have a lot of bnr In nodes
         this.setMaxListeners(0);

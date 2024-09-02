@@ -4,7 +4,10 @@
 -->
 
 <script type="text/html" data-template-name="bnr endpoint">
-
+	<div id="error-message" style="display: none; margin: 10px 0; padding: 10px; border-radius: 5px; background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;">
+		
+	</div>
+	
 	<div class="form-row">
 		<label for="node-config-input-ip"><i class="fa fa-globe"></i> <span data-i18n="bnr.endpoint.label.ip"></span></label>
 		<input class="input-append-left" type="text" id="node-config-input-ip" data-i18n="[placeholder]bnr.endpoint.label.ip" style="width: 40%;">
@@ -30,6 +33,9 @@
     <div class="form-row" style="margin-bottom:0;">
         <label><i class="fa fa-list"></i> <span data-i18n="bnr.endpoint.label.variables.list"></span></label>
     </div>
+
+
+
     <div class="form-row node-input-variables-container-row" style="margin-bottom: 0px;">
         <div id="node-config-input-variables-container-div" style="box-sizing: border-box; border-radius: 5px; height: 300px; padding: 5px; border: 1px solid #ccc; overflow-y:scroll;">
             <ol id="node-config-input-variables-container" style=" list-style-type:none; margin: 0;"></ol>
@@ -259,35 +265,80 @@
 				}
 			}
 
-			getAllVarBtn.click(async function () {
-				if (getAllVarBtn.hasClass('disabled')) return;
-				
-				getAllVarBtn.addClass('disabled');
-				var iconLookup = getAllVarBtn.children('i');
-				iconLookup.removeClass('fa-search').addClass('fa-spinner fa-spin fa-fw');
+			function showLog(data) {
+						console.log(data)
+							const errorDiv = document.getElementById('error-message');
+									errorDiv.textContent = data.message;
+									errorDiv.style.display = 'block';
 
-				fetch('__node-red-contrib-bnr/getallvar')
-				.then(async res => {
-					const file = await res.blob()
-					const fileURL = URL.createObjectURL(file);
+									if(data.status == "success"){
+											errorDiv.style.backgroundColor=  "#fff7d1";
+									}
+									else{
+											errorDiv.style.backgroundColor=  "#f8d7da";
+									}
 
-					const anchor = document.createElement('a');
-					anchor.href = fileURL;
-					anchor.download = "allVars.csv"
+					}
 
-					document.body.appendChild(anchor);
-					anchor.click();
-					document.body.removeChild(anchor);
 
-					URL.revokeObjectURL(fileURL);
+					getAllVarBtn.click(async function () {
+							if (getAllVarBtn.hasClass('disabled')) return;
 
-					iconLookup.removeClass('fa-spinner fa-spin fa-fw').addClass('fa-search');
-					getAllVarBtn.removeClass('disabled');
-				}).catch(e => {
-					iconLookup.removeClass('fa-spinner fa-spin fa-fw').addClass('fa-search');
-					getAllVarBtn.removeClass('disabled');
-				})
-			});
+							getAllVarBtn.addClass('disabled');
+							var iconLookup = getAllVarBtn.children('i');
+							iconLookup.removeClass('fa-search').addClass('fa-spinner fa-spin fa-fw');
+
+							const params = new URLSearchParams({
+											port: document.getElementById("node-config-input-port").value,
+											ip: document.getElementById("node-config-input-ip").value,
+											sa: document.getElementById("node-config-input-sa").value,
+											timeout:document.getElementById("node-config-input-timeout").value,
+											cycletime:document.getElementById("node-config-input-cycletime").value
+							});
+						 showLog({"message": "Waiting for connection...", "status": "success"});
+
+						 let successMessage =  setTimeout(() => {
+									showLog({"message": "Connected! Getting variable list...", "status": "success"});
+							}, params.get('timeout')+1000);
+
+							fetch(`__node-red-contrib-bnr/getallvar?${params}`, {
+							method: 'GET',
+							})
+							.then(async res => {
+								clearTimeout(successMessage)
+									if (res.ok) { 
+											const file = await res.blob()
+											const fileURL = URL.createObjectURL(file);
+
+											const anchor = document.createElement('a');
+											anchor.href = fileURL;
+											anchor.download = "allVars.csv"
+
+											document.body.appendChild(anchor);
+											anchor.click();
+											document.body.removeChild(anchor);
+
+											URL.revokeObjectURL(fileURL);
+
+											showLog({"message": "Success! Downloading Variables List....", "status": "success"});
+
+									}
+									else{
+
+											showLog({"message":`${await res.text()}`, "status": "error"});
+
+									}
+
+									iconLookup.removeClass('fa-spinner fa-spin fa-fw').addClass('fa-search');
+									getAllVarBtn.removeClass('disabled');
+									//showLog({"message":`${await res.text()}`, "status": "error"});
+
+
+							}).catch(e => {
+									iconLookup.removeClass('fa-spinner fa-spin fa-fw').addClass('fa-search');
+									getAllVarBtn.removeClass('disabled');
+							})
+					});
 
 			$("#node-config-input-add-variable").click(function () {
                 generateVariable({
