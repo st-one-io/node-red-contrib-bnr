@@ -314,7 +314,6 @@ module.exports = function (RED) {
          * @returns {Promise}
          */
         async function disconnect(reconnect = true) {
-            // if (!connected) return;
             connected = false;
 
             clearInterval(_cycleInterval);
@@ -322,12 +321,13 @@ module.exports = function (RED) {
 
             if (bnr) {
                 if (!reconnect) bnr.removeListener('disconnected', onDisconnect);
-                bnr.destroy().
-                then(() => {
+                try {
+                    await bnr.destroy();
                     removeListeners();
                     bnr = null;
-                }).catch(err => onError(err));
-                
+                } catch (err) {
+                    onError(err);
+                }
             }
 
             console.log("Endpoint - disconnect");
