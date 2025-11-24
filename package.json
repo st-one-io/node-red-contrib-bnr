@@ -1,10 +1,10 @@
 {
   "name": "node-red-contrib-bnr",
-  "version": "1.1.7",
+  "version": "1.1.8",
   "description": "",
   "main": "bnr.js",
   "optionalDependencies": {
-    "@protocols/node-bnr": "1.2.8"
+    "@protocols/node-bnr": "1.2.9"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
